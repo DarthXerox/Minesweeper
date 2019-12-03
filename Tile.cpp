@@ -63,6 +63,9 @@ public:
         set_texture(value);
     }
 
+    bool is_flagged() {
+        return value == FLAG;
+    }
 
     void flag(int& mines_left) {
         if (is_covered) { //this check is probably not necessary
@@ -87,7 +90,6 @@ public:
         }
     }
 
-
     int uncover_tile(unsigned adjacent_bombs_amount) {
         is_covered = false;
         set_probability(0.0);
@@ -107,13 +109,6 @@ public:
         display_texture();
         return 0;
     }
-
-
-    bool is_flagged() {
-        //value == FLAG?std::cout << "flagged!" : std::cout << "not_flagged!";
-        return value == FLAG;
-    }
-
 
     void set_position(sf::Vector2u pos) {
         square.setPosition(pos.x, pos.y);
@@ -153,7 +148,7 @@ public:
     }
 
     void set_probability(int all_mines) {
-        probability_is_bomb = 1 / all_mines;
+        probability_is_bomb = 1.0 / all_mines;
     }
 
     /**
@@ -169,13 +164,9 @@ public:
 
     bool operator <(Tile& tile) {
         if (get_row() == tile.get_row()) {
-            if (get_col() < tile.get_col()) 
-                return true;
-            return false;
+            return get_col() < tile.get_col();
         }
-        if (get_row() < tile.get_row()) 
-            return true;
-        return false;
+        return get_row() < tile.get_row();
     }
  
     int get_col() const {
@@ -186,6 +177,9 @@ public:
         return row;
     }
 
+    /**
+     * Used by AI
+     */
     bool are_non_diagonal_neighbours(const Tile tile) {
         if (row == tile.get_row()) {
             if (col + 1 == tile.get_col() || col - 1 == tile.get_col())
