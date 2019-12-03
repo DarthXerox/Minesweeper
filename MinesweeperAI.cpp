@@ -92,7 +92,7 @@ public:
      **/
     void get_adajcent_tiles_info(const std::vector<Tile*> adjacent_tiles, int& flagged_amnt, int& not_flagged_covered_amnt) {
         for (Tile* tile : adjacent_tiles) {
-            if (tile->is_covered) {
+            if (tile->get_is_covered()) {
                 if (tile->is_flagged()) {
                     flagged_amnt++;
                 } else {
@@ -103,17 +103,18 @@ public:
     }
 
     void flag_all_adjacent_covered_tiles(std::vector<Tile*> adjacent_tiles, Minefield& minefield) {
-        for (Tile* tile : adjacent_tiles) {
-            if (tile->is_covered && !tile->is_flagged()) {
-                tile->flag(minefield.mines_left);
+        for (Tile* tile : adjacent_tiles) { //this is safe as only already iterated-over tiles are changed
+            if (tile->get_is_covered() && !tile->is_flagged()) {
+                //tile->flag(minefield.get_mines_left());
+                minefield.flag_tile(*tile);
             }
         }
     }
 
     void uncover_all_adjacent_covered_tiles(std::vector<Tile*> adjacent_tiles, Minefield& minefield) {
         for (Tile* tile : adjacent_tiles) {
-            if (tile->is_covered && !tile->is_flagged()) {
-                minefield.execute_click(*tile, sf::Mouse::Button::Left);
+            if (tile->get_is_covered() && !tile->is_flagged()) {
+                minefield.click_tile(*tile, sf::Mouse::Button::Left);
             }
         }
     }
@@ -121,7 +122,7 @@ public:
     std::vector<Tile*> get_not_flagged_covered(std::vector<Tile*> tiles) {
         std::vector<Tile*> not_flagged_covered;
         for (auto tile : tiles) {
-            if (tile->is_covered && !tile->is_flagged()) {
+            if (tile->get_is_covered() && !tile->is_flagged()) {
                 not_flagged_covered.push_back(tile);
             }
         }

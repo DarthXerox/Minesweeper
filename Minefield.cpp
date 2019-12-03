@@ -63,12 +63,71 @@ public:
         return 0;
     }
 
+    void flag_tile(const Tile& tile) {
+        flag_tile(tile.get_row(), tile.get_col());
+    }
+
+    void flag_tile(int row, int col) {
+        minefield[row][col].flag(mines_left);
+    }
+
+    void click_tile(Tile& tile, sf::Mouse::Button button){
+        click_tile(tile.get_row(), tile.get_col(), button);
+    }
+
+    void click_tile(int row, int col, sf::Mouse::Button button) {
+        execute_click(minefield[row][col], button);
+    }
+
+    void end_the_game(sf::RenderWindow& window, bool game_won) {
+        std::cout << "\n\n!!!\nGAME OVER\n!!!" << std::endl;
+        if (game_won) {
+            std::cout << "VICTORY" << std::endl;
+        } else
+            std::cout << "LOSS" << std::endl;
+        std::cout << "Press any mouse key to close the window." << std::endl;
+
+        window.clear(sf::Color(125, 125, 125));
+        draw_minefield(window);
+        window.display();
+    }
+
+
+    Tile& get_tile(int x, int y) {
+        return minefield[x][y];
+    }
+
+    int get_mines_left() {
+        return mines_left;
+    }
+
+private:
+    const sf::Vector2u starting_point = {0, 0};
+    int width = 0;
+    int height = 0;
+    int mines_count = 0;
+    int mines_left = 0;
+    bool first_click = true;
+    std::vector<std::vector<Tile>> minefield;
+    std::vector<Tile*> bomb_tiles;
+
+    void initialize_minefield() {
+        std::cout << "Choose height of the minefield:" << std::endl;
+        std::cin >> height;
+        std::cout << "Choose width of the minefield:" << std::endl;
+        std::cin >> width;
+        std::cout << "Choose amount of bombs:" << std::endl;
+        std::cin >> mines_count;
+        mines_left = mines_count;
+    }
+
     void create_minefield() {
         for (int i = 0; i < height; ++i) {
             std::vector<Tile> row;
             for (int j = 0; j < width; ++j) {
                 Tile tile(i, j);
-                sf::Vector2u pos = sf::Vector2u(starting_point.x + j * tile.get_size().x, starting_point.y + i * tile.get_size().y);
+                sf::Vector2u pos = sf::Vector2u(starting_point.x + j * tile.get_size().x,
+                                starting_point.y + i * tile.get_size().y);
                 tile.set_position(pos);
                 tile.set_probability(mines_left);
 
@@ -83,35 +142,6 @@ public:
                 //tile.set_origin_to_middle();
             }
         }
-        //bomb_tiles = deploy_bombs();
-    }
-
-    Tile& get_tile(int x, int y) {
-        return minefield[x][y];
-    }
-
-    int mines_left = 0;
-    std::vector<std::vector<Tile>> minefield;
-
-private:
-    const sf::Vector2u starting_point = {0, 0};
-    int width = 0;
-    int height = 0;
-    int mines_count = 0;
-    
-    bool first_click = true;
-    
-    std::vector<Tile*> bomb_tiles;
-
-
-    void initialize_minefield() {
-        std::cout << "Choose height of the minefield:" << std::endl;
-        std::cin >> height;
-        std::cout << "Choose width of the minefield:" << std::endl;
-        std::cin >> width;
-        std::cout << "Choose amount of bombs:" << std::endl;
-        std::cin >> mines_count;
-        mines_left = mines_count;
     }
 
 
@@ -123,8 +153,8 @@ private:
         while (i < mines_count) {
             int x = rand() % height;
             int y = rand() % width;
-            if (first_clicked_tile.col != y && first_clicked_tile.row != x && !minefield[x][y].is_bomb) {
-                minefield[x][y].is_bomb = true;
+            if (first_clicked_tile.get_col() != y && first_clicked_tile.get_row() != x && !minefield[x][y].get_is_bomb()) {
+                minefield[x][y].set_is_bomb();
                 mines.push_back(&minefield[x][y]);
             }
             else
@@ -133,11 +163,11 @@ private:
         }
         return mines;
     }
-public:
+
     int execute_click(Tile& tile, sf::Mouse::Button button) {
-        if (!tile.is_covered)
+        if (!tile.get_is_covered())
             return 0;
-        
+
         if (button == sf::Mouse::Right) {
             tile.flag(mines_left);
             if (check_game_won())
@@ -145,7 +175,7 @@ public:
         }
         else { //left button
             if (!tile.is_flagged()) {
-                if (tile.is_bomb && !first_click) {
+                if (tile.get_is_bomb() && !first_click) {
                     explode(tile);
                     return -1;
                 }
@@ -162,8 +192,6 @@ public:
         }
         return 0;
     }
-private:
-
 
     bool check_game_won() {
         if (mines_left == 0) {
@@ -186,29 +214,15 @@ private:
         for (auto &row: minefield) {
             for (auto &tile: row) {
                 if (tile.is_flagged()) {
-                    if (!tile.is_bomb)
+                    if (!tile.get_is_bomb())
                         tile.display_texture(Tile::INCORRECT_BOMB);
                 }
-                else if (tile.is_bomb) {
+                else if (tile.get_is_bomb()) {
                     tile.display_texture(Tile::BOMB);
                 }
             }
         }
         triggered_bomb.display_texture(Tile::EXPLODED_BOMB);
-    }
-
-public:
-    void end_the_game(sf::RenderWindow& window, bool game_won) {
-        std::cout << "\n\n!!!\nGAME OVER\n!!!" << std::endl;
-        if (game_won) {
-            std::cout << "VICTORY" << std::endl;
-        } else
-            std::cout << "LOSS" << std::endl;
-        std::cout << "Press any mouse key to close the window." << std::endl;
-
-        window.clear(sf::Color(125, 125, 125));
-        draw_minefield(window);
-        window.display();
     }
 
 
@@ -217,15 +231,13 @@ public:
 
         std::vector<Tile*> adjacent_tiles = tile.get_adjacent_tiles();
         for (auto &_tile: adjacent_tiles) {
-            if (_tile->is_bomb)
+            if (_tile->get_is_bomb())
                 ++counter;
         }
         return counter;
     }
 
 
-
-private:
     void set_adjacent_tiles_all_tiles() {
         for (auto &row: minefield) {
             for (auto &tile: row) {
@@ -260,5 +272,4 @@ private:
 
         return minefield[0][0];
     }
-
 };

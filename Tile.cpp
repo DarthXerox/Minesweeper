@@ -68,7 +68,7 @@ public:
     }
 
     void flag(int& mines_left) {
-        if (is_covered) { //this check is probably not necessary
+        if (get_is_covered()) { //this check is probably not necessary
             switch (value) {
                 case CLEAR_COVERED:
                     value = FLAG;
@@ -91,7 +91,6 @@ public:
     }
 
     int uncover_tile(unsigned adjacent_bombs_amount) {
-        is_covered = false;
         set_probability(0.0);
 
         if (is_bomb) {
@@ -191,9 +190,20 @@ public:
         return false;
     }
 
-
     void set_adjacent_tiles(std::vector<std::vector<Tile>>& minefield) {
         std::vector<Tile*> adj_tiles;
+        std::vector<int> increments = {-1, 0, 1};
+
+        for (int i : increments) {
+            for (int j : increments) {
+                if (row + i >= 0 && col + j >= 0 && row + i < minefield.size() && col + j < minefield[0].size()
+                    && (i != 0 || j != 0)) {
+                    adj_tiles.push_back(&minefield[row + i][col + j]);
+
+                }
+            }
+        }
+        /*
         if (row + 1 < minefield.size()) { //upper row
             adj_tiles.push_back(&minefield[row+1][col]);
 
@@ -221,31 +231,38 @@ public:
                 adj_tiles.push_back(&minefield[row-1][col+1]);
             }
 
-        }
+        }*/
 
         //refresh textures!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        for (auto &_tile: adj_tiles)
-            _tile->load_texture();
+        //NOT necessary anymore YAY!
+        /*for (auto &_tile: adj_tiles)
+            _tile->load_texture();*/
 
         this->adjacent_tiles = adj_tiles;
     }
 
-    bool is_bomb = false;
-    bool is_covered = true;
+    bool get_is_bomb() {
+        return is_bomb;
+    }
 
-    int row = 0;
-    int col = 0;
+    void set_is_bomb() {
+        is_bomb = true;
+    }
+
+    bool get_is_covered() {
+        return value <= QUESTION_MARK_COVERED && value >= CLEAR_COVERED;
+    }
+
 private:
-    std::vector<Tile*> adjacent_tiles;
-
-    double probability_is_bomb = 0.0;
     sf::Sprite square;
     sf::Vector2u tile_size;
     sf::Texture texture;
-
+    int row = 0;
+    int col = 0;
     enum tile_values value = CLEAR_COVERED;
-
-
+    bool is_bomb = false;
+    std::vector<Tile*> adjacent_tiles;
+    double probability_is_bomb = 0.0;
 
     /**
      * Chooses which state of tile is to be drawn
@@ -253,8 +270,6 @@ private:
      */
     void set_texture(int offset) {
         square.setTexture(texture);
-        //std::cout << "offset:" << offset << std::endl;
-        //std::cout << tile_size.y << " " << tile_size.x;
         sf::IntRect new_texture_rect = sf::IntRect(0, (0 + offset) * tile_size.y, tile_size.x, tile_size.y);
         square.setTextureRect(new_texture_rect);
     }
