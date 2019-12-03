@@ -9,8 +9,9 @@ using namespace sf;
 
 int main() {
     bool end_the_game = false;
-    
-    Minefield minefield(40, 40, 280);
+
+    Minefield minefield(20, 20, 50);
+    //Minefield minefield(30, 40, 280);
     //Minefield minefield;
 
     RenderWindow window(sf::VideoMode(minefield.get_width()*16, minefield.get_height()*16), "Minesweeper", sf::Style::Close );
