@@ -27,7 +27,7 @@ public:
                     //std::cout<<"It is a NUMBER"<<std::endl;
                     int flagged_adjacent_tiles = 0, not_flagged_adjacent_tiles = 0;
                     std::vector<Tile*> adjacent_tiles = tile.get_adjacent_tiles();
-                    get_adajcent_tiles_info(adjacent_tiles, flagged_adjacent_tiles, not_flagged_adjacent_tiles);
+                    get_adjacent_tiles_info(adjacent_tiles, flagged_adjacent_tiles, not_flagged_adjacent_tiles);
                     //std::cout<<flagged_adjacent_tiles<<not_flagged_adjacent_tiles<<std::endl;
 
                     if (basic_rules_only) {                                                               
@@ -42,42 +42,43 @@ public:
                             //std::cout<<"uncovered!!!!!!!!!!!!!!!!!!!!!!!!!"<<std::endl;
                             return 1;
                         } 
-                    } /*else {
+                    } else {
                         if (tile_num - flagged_adjacent_tiles == 1 && not_flagged_adjacent_tiles == 2) {
-                            std::vector<Tile*> uncovered = get_not_flagged_covered(adjacent_tiles);
+                            std::vector<Tile *> uncovered = get_not_flagged_covered(adjacent_tiles);
                             if (uncovered[0]->are_non_diagonal_neighbours(*uncovered[1])) {
-                                Tile* tile_to_click = get_non_bomb_tile(minefield, uncovered, i, j);
-                                std::cout <<"Initial tile: "<<i<<" " <<j<<std::endl;
+                                Tile *tile_to_click = get_non_bomb_tile(minefield, uncovered, i, j);
+                                std::cout << "Initial tile: " << i << " " << j << std::endl;
                                 if (tile_to_click) {
-                                    std::cout <<"Clicked tile: "<<tile_to_click->get_row()<<" " <<tile_to_click->get_col()<<std::endl;
-                                    minefield.execute_click(*tile_to_click, sf::Mouse::Button::Left);
-                                    std::cout <<"Just applied the third rule!!!"<<std::endl;
+                                    std::cout << "Clicked tile: " << tile_to_click->get_row() << " "
+                                              << tile_to_click->get_col() << std::endl;
+                                    minefield.click_tile(*tile_to_click, sf::Mouse::Button::Left);
+                                    std::cout << "Just applied the third rule!!!" << std::endl;
                                     return 1;
                                 } else {
-                                    std::cout<<"Wtf"<<std::endl;
+                                    std::cout << "Wtf" << std::endl;
                                 }
                             } else {
-                                std::cout<<"Neighbours not working"<<std::endl;
+                                std::cout << "Neighbours not working" << std::endl;
                             }
 
 
-                            REFACTOR!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                            //REFACTOR
+                            //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-                        }*/
+                        }
+                    }
                 }
             }
         }
-        /*if (basic_rules_only) {
-            i = 0;
-            j = 0;
-            if (check_all_numbers(minefield, false, i, j) == 0) {
+        if (basic_rules_only) {
+            if (check_all_numbers(minefield, false) == 0) {
                 std::cout <<"No other possibilities for AI" <<std::endl;
-                std::cout <<"Mines left: "<<minefield.mines_left<<std::endl;
+                std::cout <<"Mines left: "<<minefield.get_mines_left()<<std::endl;
                 return 0;
             } else {
-                return check_all_numbers(minefield, true, i, j);
+                return check_all_numbers(minefield, true);
             }
-        } */
+        }
         std::cout <<"No other possibilities for AI" <<std::endl;
         std::cout <<"Mines left: "<<minefield.get_mines_left()<<std::endl;
         return 0;
@@ -92,7 +93,7 @@ public:
     /**
      * Checks all covered adjacent tiles and increments flagged_amnt for each flagged one and not_falgged_covered_amnt for each not flagged one
      **/
-    void get_adajcent_tiles_info(const std::vector<Tile*> adjacent_tiles, int& flagged_amnt, int& not_flagged_covered_amnt) {
+    void get_adjacent_tiles_info(const std::vector<Tile*> adjacent_tiles, int& flagged_amnt, int& not_flagged_covered_amnt) {
         for (Tile* tile : adjacent_tiles) {
             if (tile->get_is_covered()) {
                 if (tile->is_flagged()) {
@@ -137,7 +138,7 @@ public:
         }
         int flagged_adjacent_tiles = 0, not_flagged_adjacent_tiles = 0;
         std::vector<Tile*> adjacent_tiles = tile.get_adjacent_tiles();
-        get_adajcent_tiles_info(adjacent_tiles, flagged_adjacent_tiles, not_flagged_adjacent_tiles);
+        get_adjacent_tiles_info(adjacent_tiles, flagged_adjacent_tiles, not_flagged_adjacent_tiles);
         return tile.get_num() - flagged_adjacent_tiles;
     }
 
@@ -153,16 +154,16 @@ public:
         if (tiles[0]->get_row() == tiles[1]->get_row()) {
             next_num_row = num_row;
             if (tiles[0]->get_col() == num_col) {
-                next_num_col == tiles[1]->get_col();
+                next_num_col = tiles[1]->get_col();
             } else {
-                next_num_col == tiles[0]->get_col();
+                next_num_col = tiles[0]->get_col();
             }
         } else if (tiles[0]->get_col() == tiles[1]->get_col()) {
             next_num_col = num_col;
             if (tiles[0]->get_row() == num_row) {
-                next_num_row == tiles[1]->get_row();
+                next_num_row = tiles[1]->get_row();
             } else {
-                next_num_row == tiles[0]->get_row();
+                next_num_row = tiles[0]->get_row();
             }
         } else {
             return nullptr;
