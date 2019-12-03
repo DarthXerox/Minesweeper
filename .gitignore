@@ -1,0 +1,6 @@
+#all built objects and binary
+*.o
+Minesweeper
+
+#.idea folder
+.idea 
