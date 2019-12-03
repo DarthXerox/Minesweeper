@@ -1,6 +1,9 @@
-#all built objects and binary
+# all built objects and binary
 *.o
 Minesweeper
 
-#.idea folder
+# .idea folder
 .idea 
+
+# compile database
+compile_commands.json
