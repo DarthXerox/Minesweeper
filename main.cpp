@@ -10,8 +10,10 @@ using namespace sf;
 int main() {
     bool end_the_game = false;
 
-    Minefield minefield(20, 20, 50);
+    //Minefield minefield(20, 20, 50);
     //Minefield minefield(30, 40, 280);
+    Minefield minefield(40, 40, 300);
+
     //Minefield minefield;
 
     RenderWindow window(VideoMode(minefield.get_width()*16, minefield.get_height()*16), "Minesweeper", sf::Style::Close );
@@ -49,13 +51,13 @@ int main() {
                         minefield.draw_minefield(window);
                         window.display();
 
-                        //std::cout <<"Switch AI? [1/0]"<<std::endl;
-                        //std::cin >>launch_ai;
+                        std::cout <<"Switch AI? [1/0]"<<std::endl;
+                        std::cin >>launch_ai;
                     } 
                     break;
             }
         }
-        /*if (launch_ai){
+        if (launch_ai){
             launch_ai = ai.check_all_numbers(minefield, true);
             /*if (!launch_ai) {
                 last_tile_row = 0;
@@ -69,7 +71,7 @@ int main() {
             //ai.uncover_all_adjacent_covered_tiles(minefield.get_adjacent_tiles(minefield.get_tile(1,1)), minefield);
             //usleep(200); // 2s       
             //launch_ai = false;   
-        //}
+        }
 
         window.clear(Color(125, 125, 125));
 

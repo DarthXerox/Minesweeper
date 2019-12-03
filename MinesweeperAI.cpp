@@ -16,8 +16,8 @@ public:
     //OPTIMIZE with last tile coordinates so it starts to iterate from there
     int check_all_numbers(Minefield& minefield, bool basic_rules_only) {
         //std::cout << "Hm" << std::endl;
-        for (int i; i < minefield.get_height(); i++) {
-            for (int j; j < minefield.get_width(); j++) {
+        for (int i = 0; i < minefield.get_height(); i++) {
+            for (int j = 0; j < minefield.get_width(); j++) {
                 Tile& tile = minefield.get_tile(i ,j);
                 //std::cout <<"Tile val: "<<tile.get_value()<<std::endl;
                 int tile_num = tile.get_num();
@@ -78,6 +78,8 @@ public:
                 return check_all_numbers(minefield, true, i, j);
             }
         } */
+        std::cout <<"No other possibilities for AI" <<std::endl;
+        std::cout <<"Mines left: "<<minefield.get_mines_left()<<std::endl;
         return 0;
     }
 
