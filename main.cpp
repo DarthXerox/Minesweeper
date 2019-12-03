@@ -14,7 +14,7 @@ int main() {
     //Minefield minefield(30, 40, 280);
     //Minefield minefield;
 
-    RenderWindow window(sf::VideoMode(minefield.get_width()*16, minefield.get_height()*16), "Minesweeper", sf::Style::Close );
+    RenderWindow window(VideoMode(minefield.get_width()*16, minefield.get_height()*16), "Minesweeper", sf::Style::Close );
 
     //Icon only
     Image icon;
