@@ -179,7 +179,7 @@ public:
     /**
      * Used by AI
      */
-    bool are_non_diagonal_neighbours(const Tile tile) {
+    bool are_non_diagonal_neighbours(const Tile& tile) {
         if (row == tile.get_row()) {
             if (col + 1 == tile.get_col() || col - 1 == tile.get_col())
                 return true;
@@ -192,7 +192,7 @@ public:
 
     void set_adjacent_tiles(std::vector<std::vector<Tile>>& minefield) {
         std::vector<Tile*> adj_tiles;
-        std::vector<int> increments = {-1, 0, 1};
+        std::vector<int> increments = {1, 0, -1};
 
         for (int i : increments) {
             for (int j : increments) {
