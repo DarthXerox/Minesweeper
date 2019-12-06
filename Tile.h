@@ -10,9 +10,4 @@
 
 class Tile;
 
-
-
-
-
-
 #endif //MINESWEEPER_TILE_H

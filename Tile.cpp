@@ -1,5 +1,6 @@
 #include <SFML/Graphics.hpp>
 #include <iostream>
+#include <set>
 
 
 class Tile {
@@ -40,8 +41,47 @@ public:
         CLEAR_UNCOVERED = 15
     };
 
+    friend std::ostream& operator<<(std::ostream& strm, Tile& p);
+
+    friend std::ostream& operator<<(std::ostream& strm, Tile& p) {
+        return strm << p.get_row() << ", " << p.get_col() << " ";
+    }
+
+
+    struct TilePtrComparator {
+        bool operator() (Tile* t1,  Tile* t2) {
+            return *t1 < *t2;
+        }
+    };
+
+    bool operator== (const Tile& tile) const {
+        return tile.get_row() == row && tile.get_col() == col;
+    }
+
+    bool operator< (const Tile& tile) const {
+        return (row < tile.get_row()) || (row == tile.get_row() && col < tile.get_col());
+    }
+
     std::vector<Tile*> get_adjacent_tiles() {
         return adjacent_tiles;
+    }
+
+    std::vector<Tile*> get_not_flagged_covered() {
+        std::vector<Tile*> not_flagged_covered;
+        for (auto tile : adjacent_tiles) {
+            if (tile->get_is_covered() && !tile->is_flagged()) {
+                not_flagged_covered.push_back(tile);
+            }
+        }
+        return not_flagged_covered;
+    }
+
+    bool is_adjacent_to(Tile& tile) {
+        for (Tile* adj_tile : adjacent_tiles) {
+            if (*adj_tile == tile)
+                return true;
+        }
+        return false;
     }
 
     void load_texture() {
@@ -190,6 +230,21 @@ public:
         return false;
     }
 
+    std::vector<Tile*> get_different_covered(std::vector<Tile*> vec) {
+        std::set<Tile*, TilePtrComparator> set1;
+        for (Tile* t : get_adjacent_tiles()) {
+            if (t->value == CLEAR_COVERED) {
+                set1.insert(t);
+            }
+        }
+        std::set<Tile*, TilePtrComparator> set2(vec.begin(), vec.end());
+        std::vector<Tile*> ret;
+        std::set_intersection(set1.begin(), set1.end(), set2.begin(), set2.end(), std::back_inserter(ret));
+
+        return ret;
+    }
+
+    //THESE are automatically ordered
     void set_adjacent_tiles(std::vector<std::vector<Tile>>& minefield) {
         std::vector<Tile*> adj_tiles;
         std::vector<int> increments = {1, 0, -1};

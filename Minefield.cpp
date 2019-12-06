@@ -149,7 +149,8 @@ private:
         std::vector<Tile*> mines;
         int i = 0;
 
-        srand(time(nullptr));
+        //srand(time(nullptr));
+        srand(5);
         while (i < mines_count) {
             int x = rand() % height;
             int y = rand() % width;
