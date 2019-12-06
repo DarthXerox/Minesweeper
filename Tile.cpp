@@ -263,7 +263,7 @@ public:
         }
         std::set<Tile*, TilePtrComparator> set2(vec.begin(), vec.end());
         std::vector<Tile*> ret;
-        std::set_intersection(set1.begin(), set1.end(), set2.begin(), set2.end(), std::back_inserter(ret));
+        std::set_difference(set1.begin(), set1.end(), set2.begin(), set2.end(), std::back_inserter(ret));
 
         return ret;
     }
@@ -271,7 +271,7 @@ public:
     //THESE are automatically ordered
     void set_adjacent_tiles(std::vector<std::vector<Tile>>& minefield) {
         std::vector<Tile*> adj_tiles;
-        std::vector<int> increments = {1, 0, -1};
+        std::vector<int> increments = {-1, 0, 1};
 
         for (int i : increments) {
             for (int j : increments) {

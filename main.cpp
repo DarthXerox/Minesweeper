@@ -59,6 +59,7 @@ int main() {
         }
         if (launch_ai){
             launch_ai = ai.check_all_numbers(minefield, true);
+            //usleep(10000);
             /*if (!launch_ai) {
                 last_tile_row = 0;
                 last_tile_col = 0;

@@ -53,121 +53,61 @@ public:
                         if (tile_num - flagged_adjacent_tiles + 1 == not_flagged_adjacent_tiles) {
                             std::vector<Tile*> non_flagged_adj = tile.get_not_flagged_covered();
 
-                            std::cout << "Switched to harder rule" << std::endl;
+                            /*std::cout << "Switched to harder rule" << std::endl;
                             std::cout << "Clicked tile: " << tile.get_row() << " "
                                       << tile.get_col() << std::endl;
-                            usleep(1000000);
+                            */
+                            std::vector<Tile*> brother_nums = get_brother_nums(tile, non_flagged_adj);
 
-                            /*//surrounding_tiles.push_back(non_flagged_adj[0]->get_adjacent_tiles());
-                            std::vector<std::vector<Tile*>> surrounding_tiles;
-                            for (Tile* non_flagged : non_flagged_adj) {
-                                std::vector<Tile*> v(non_flagged->get_adjacent_tiles());
-                                surrounding_tiles.push_back(v);
+                            // valid brother nums are those that are not equal to initial tile and
+                            // have the same actual number as the initial tile
+                            if (brother_nums.empty()) {
+                                continue;
                             }
-                            std::cout << "ok1" << std::endl;
-
-                            for (auto& vec : surrounding_tiles) { //the vectors are now pretending to be sets
-                                std::sort(vec.begin(), vec.end(), Tile::TilePtrComparator());
-                            }
-                            std::cout << "ok2" << std::endl;
-
-                            std::vector<Tile*> brother_nums = surrounding_tiles[0];
-                            for (int it = 1; it < surrounding_tiles.size(); it++) {
-                                std::cout << "before next union: " << std::endl;
-                                for (Tile* t : brother_nums) {
-                                    std::cout << *t;
-                                }
-                                std::cout << std::endl;
-
-                                std::cout << "The other set: " << std::endl;
-                                for (Tile* t : surrounding_tiles[it]) {
-                                    std::cout << *t;
-                                }
-                                std::cout << std::endl;
-
-                                std::vector<Tile*> union_;
-                                set_intersection(brother_nums.begin(), brother_nums.end(), surrounding_tiles[it].begin(),
-                                        surrounding_tiles[it].end(), std::back_inserter(union_));
-                                brother_nums = union_;
-
-                                std::cout << "after next union: " << std::endl;
-                                for (Tile* t : brother_nums) {
-                                    std::cout << *t;
-                                }
-                                std::cout << std::endl;
-                            }
-
-                            std::vector<Tile*> new_brothers;
-                            for (int k = 0; k < brother_nums.size(); k++) {
-                                if (brother_nums[k]->is_num() && !(*brother_nums[k] == tile)) {
-                                    new_brothers.push_back(brother_nums[k]);
-                                }
-                            }
-                            brother_nums = new_brothers;
-
-                            std::cout << "Only valid tiles: " << std::endl;
-                            for (Tile* t : new_brothers) {
+                            /*
+                            std::cout << "Brother nums size: " << brother_nums.size() << std::endl;
+                            std::cout << "Before for loop: " << std::endl;
+                            for (Tile* t : brother_nums[0]->get_different_covered(tile.get_adjacent_tiles())) {
                                 std::cout << *t;
                             }
                             std::cout << std::endl;*/
 
-                            std::vector<Tile*> brother_nums = get_brother_nums(tile, non_flagged_adj);
+                            bool change_made = false;
+                            for (Tile* brother_num : brother_nums) {
+                                std::vector<Tile*> tiles_to_click =
+                                        brother_num->get_different_covered(tile.get_adjacent_tiles());
 
-                            // valid brother nums are those that dont
+                                if (tiles_to_click.empty()) {
+                                    continue;
+                                }
+                                for (Tile* adj_tile : tiles_to_click) {
+                                    bool to_click = true;
+                                    for (Tile* t : non_flagged_adj) {
+                                        if (*t == *adj_tile) {
+                                            to_click = false;
+                                            break;
+                                        }
+                                    }
 
-                            if (brother_nums.empty()) {
-                                continue;
-                            }
-
-                            for (Tile* adj_tile : brother_nums[0]->get_different_covered(tile.get_adjacent_tiles())) {
-                                bool to_click = true;
-                                for (Tile* t : non_flagged_adj) {
-                                    if (*t == *adj_tile) {
-                                        to_click = false;
-                                        break;
+                                    if (to_click) {
+                                        change_made = true;
+                                        //std::cout << "Gonna be clicked: " << *adj_tile << std::endl;
+                                        minefield.click_tile(*adj_tile, sf::Mouse::Button::Left);
                                     }
                                 }
 
-                                if (to_click) {
-                                    std::cout << "Gonna be clicked: " << *adj_tile << std::endl;
-                                    minefield.click_tile(*adj_tile, sf::Mouse::Button::Left);
-                                }
                             }
-                            std::cout << "ok4" << std::endl;
-
-                            return 1;
+                            if (change_made) {
+                                std::cout << "ok4" << std::endl;
+                                return 1;
+                            }
                         }
-
-                        /*if (tile_num - flagged_adjacent_tiles == 1 && not_flagged_adjacent_tiles == 2) {
-                            std::vector<Tile *> uncovered = get_not_flagged_covered(adjacent_tiles);
-                            if (uncovered[0]->are_non_diagonal_neighbours(*uncovered[1])) {
-                                Tile *tile_to_click = get_non_bomb_tile(minefield, uncovered, i, j);
-                                std::cout << "Initial tile: " << i << " " << j << std::endl;
-                                if (tile_to_click) {
-
-                                    minefield.click_tile(*tile_to_click, sf::Mouse::Button::Left);
-                                    std::cout << "Just applied the third rule!!!" << std::endl;
-                                    return 1;
-                                } else {
-                                    std::cout << "Wtf" << std::endl;
-                                }
-                            } else {
-                                std::cout << "Neighbours not working" << std::endl;
-                            }
-
-
-                            //REFACTOR
-                            //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-                        }*/
                     }
                 }
             }
         }
         if (basic_rules_only) {
             if (check_all_numbers(minefield, false) == 0) {
-                std::cout <<"No other possibilities for AI" <<std::endl;
-                std::cout <<"Mines left: "<<minefield.get_mines_left()<<std::endl;
                 return 0;
             } else {
                 return check_all_numbers(minefield, true);
@@ -188,7 +128,7 @@ public:
 
         std::vector<Tile*> brother_nums = surrounding_tiles[0];
         for (unsigned long it = 1; it < surrounding_tiles.size(); it++) {
-            std::cout << "before next union: " << std::endl;
+            /*std::cout << "before next union: " << std::endl;
             for (Tile* t : brother_nums) {
                 std::cout << *t;
             }
@@ -198,18 +138,18 @@ public:
             for (Tile* t : surrounding_tiles[it]) {
                 std::cout << *t;
             }
-            std::cout << std::endl;
+            std::cout << std::endl;*/
 
             std::vector<Tile*> intersection;
             set_intersection(brother_nums.begin(), brother_nums.end(), surrounding_tiles[it].begin(),
                              surrounding_tiles[it].end(), std::back_inserter(intersection));
             brother_nums = intersection;
 
-            std::cout << "after next union: " << std::endl;
+            /*std::cout << "after next union: " << std::endl;
             for (Tile* t : brother_nums) {
                 std::cout << *t;
             }
-            std::cout << std::endl;
+            std::cout << std::endl;*/
         }
 
         return brother_nums;
@@ -277,67 +217,4 @@ public:
         get_adjacent_tiles_info(adjacent_tiles, flagged_adjacent_tiles, not_flagged_adjacent_tiles);
         return tile.get_num() - flagged_adjacent_tiles;
     }
-
-
-
-    /**
-     * @param tiles should be of size two
-     * */
-    Tile* get_non_bomb_tile(Minefield& minefield, std::vector<Tile*> tiles, int num_row, int num_col) {
-        int next_num_row = 0, next_num_col = 0;
-        int nb_row = 0, nb_col = 0;
-        if (tiles.size() != 2) 
-            return nullptr;
-        
-        if (tiles[0]->get_row() == tiles[1]->get_row()) {
-            next_num_row = num_row;
-            if (tiles[0]->get_col() == num_col) {
-                next_num_col = tiles[1]->get_col();
-            } else {
-                next_num_col = tiles[0]->get_col();
-            }
-        } else if (tiles[0]->get_col() == tiles[1]->get_col()) {
-            next_num_col = num_col;
-            if (tiles[0]->get_row() == num_row) {
-                next_num_row = tiles[1]->get_row();
-            } else {
-                next_num_row = tiles[0]->get_row();
-            }
-        } else {
-            return nullptr;
-        }
-        std::cout<<"Next num coor: "<<next_num_row<<" "<<next_num_col<<std::endl;
-        int next_num_value = get_actual_num_tile(minefield.get_tile(next_num_row, next_num_col), minefield);
-        if (next_num_value == 0) {
-            return nullptr;
-        }
-        int increment = 1;
-        //if (next_num_value == 2) increment = 0; 
-
-        if (next_num_col == num_col) {
-            nb_col = tiles[0]->get_col();
-            if (num_row > next_num_row) {
-                nb_row = next_num_row - increment;
-            } else {
-                nb_row = next_num_row + increment;
-            }
-        } else if (next_num_row == num_row) {
-            nb_row = tiles[0]->get_row();
-            if (num_col > next_num_col) {
-                nb_col = next_num_col - increment;
-            } else {
-                nb_col = next_num_col + increment;
-            }                  
-        } else {
-            return nullptr;
-        }
-        std::cout<<"Non bomb coor: "<<nb_row<<" "<<nb_col<<std::endl;
-
-
-        if (nb_col < 0 || nb_row < 0 || nb_col >= minefield.get_width() || nb_row >= minefield.get_height())
-            return nullptr;
-
-        return &minefield.get_tile(nb_row, nb_col);
-    }
-
 };
