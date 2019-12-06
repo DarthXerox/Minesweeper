@@ -9,10 +9,6 @@ Tile.o : Tile.h
 Minefield.o : Minefield.h
 MinesweeperAI.o : MinesweeperAI.h
 
-run:
-	make clean 
-	make all
-
 clean:
 	$(RM) *.o Minesweeper 
 
