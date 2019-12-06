@@ -52,16 +52,14 @@ public:
                         // this other tile's any different tiles are not bombs
                         if (tile_num - flagged_adjacent_tiles + 1 == not_flagged_adjacent_tiles) {
                             std::vector<Tile*> non_flagged_adj = tile.get_not_flagged_covered();
-                            std::vector<std::vector<Tile*>> surrounding_tiles;
+
                             std::cout << "Switched to harder rule" << std::endl;
                             std::cout << "Clicked tile: " << tile.get_row() << " "
                                       << tile.get_col() << std::endl;
-                            usleep(5000000);
+                            usleep(1000000);
 
-
-
-                            //surrounding_tiles.push_back(non_flagged_adj[0]->get_adjacent_tiles());
-
+                            /*//surrounding_tiles.push_back(non_flagged_adj[0]->get_adjacent_tiles());
+                            std::vector<std::vector<Tile*>> surrounding_tiles;
                             for (Tile* non_flagged : non_flagged_adj) {
                                 std::vector<Tile*> v(non_flagged->get_adjacent_tiles());
                                 surrounding_tiles.push_back(v);
@@ -106,13 +104,20 @@ public:
                                 }
                             }
                             brother_nums = new_brothers;
+
                             std::cout << "Only valid tiles: " << std::endl;
                             for (Tile* t : new_brothers) {
                                 std::cout << *t;
                             }
-                            std::cout << std::endl;
+                            std::cout << std::endl;*/
 
+                            std::vector<Tile*> brother_nums = get_brother_nums(tile, non_flagged_adj);
 
+                            // valid brother nums are those that dont
+
+                            if (brother_nums.empty()) {
+                                continue;
+                            }
 
                             for (Tile* adj_tile : brother_nums[0]->get_different_covered(tile.get_adjacent_tiles())) {
                                 bool to_click = true;
@@ -174,10 +179,61 @@ public:
     }
 
 
+    std::vector<Tile*> get_brother_nums(Tile& init_tile, std::vector<Tile*>& non_flagged_adj) {
+        std::vector<std::vector<Tile*>> surrounding_tiles;
+        for (Tile* non_flagged : non_flagged_adj) {
+            //std::vector<Tile*> v(non_flagged->get_adjacent_tiles());
+            surrounding_tiles.push_back(get_only_correct_nums(non_flagged, &init_tile));
+        }
+
+        std::vector<Tile*> brother_nums = surrounding_tiles[0];
+        for (unsigned long it = 1; it < surrounding_tiles.size(); it++) {
+            std::cout << "before next union: " << std::endl;
+            for (Tile* t : brother_nums) {
+                std::cout << *t;
+            }
+            std::cout << std::endl;
+
+            std::cout << "The other set: " << std::endl;
+            for (Tile* t : surrounding_tiles[it]) {
+                std::cout << *t;
+            }
+            std::cout << std::endl;
+
+            std::vector<Tile*> intersection;
+            set_intersection(brother_nums.begin(), brother_nums.end(), surrounding_tiles[it].begin(),
+                             surrounding_tiles[it].end(), std::back_inserter(intersection));
+            brother_nums = intersection;
+
+            std::cout << "after next union: " << std::endl;
+            for (Tile* t : brother_nums) {
+                std::cout << *t;
+            }
+            std::cout << std::endl;
+        }
+
+        return brother_nums;
+    }
 
 
     std::vector<std::vector<Tile>> assemble_tile_chunks(Minefield minefield);
 
+    /**
+     * Filters through adjacent tiles of tile and returns only those that are n um and are not equal to other_tile
+     * Correct nums are considered those that have the same actual number as the other_tile
+     * @param tile
+     * @param other_tile
+     * @return
+     */
+    std::vector<Tile*> get_only_correct_nums(Tile* tile, Tile* other_tile) {
+        std::vector<Tile*> nums;
+        for (Tile* t : tile->get_adjacent_tiles()) {
+            if (t->is_num() && !(*t == *other_tile) && t->get_actual_tile_num() == other_tile->get_actual_tile_num()) {
+                nums.push_back(t);
+            }
+        }
+        return nums;
+    }
 
 
     /**

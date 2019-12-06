@@ -150,7 +150,7 @@ private:
         int i = 0;
 
         //srand(time(nullptr));
-        srand(5);
+        srand(5); // for debugging
         while (i < mines_count) {
             int x = rand() % height;
             int y = rand() % width;

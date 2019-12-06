@@ -41,7 +41,7 @@ public:
         CLEAR_UNCOVERED = 15
     };
 
-    friend std::ostream& operator<<(std::ostream& strm, Tile& p);
+    //friend std::ostream& operator<<(std::ostream& strm, Tile& p);
 
     friend std::ostream& operator<<(std::ostream& strm, Tile& p) {
         return strm << p.get_row() << ", " << p.get_col() << " ";
@@ -169,7 +169,6 @@ public:
         return square.getGlobalBounds().contains(point.x, point.y);
     }
 
-
     void draw_tile(sf::RenderWindow& window) {
         window.draw(square);
     }
@@ -229,6 +228,31 @@ public:
         }
         return false;
     }
+
+    /**
+     * Checks all covered adjacent tiles and increments flagged_amnt for each flagged one and not_falgged_covered_amnt for each not flagged one
+     **/
+    void get_adjacent_tiles_info(int& flagged_amnt, int& not_flagged_covered_amnt) {
+        for (Tile* tile : adjacent_tiles) {
+            if (tile->get_is_covered()) {
+                if (tile->is_flagged()) {
+                    flagged_amnt++;
+                } else {
+                    not_flagged_covered_amnt++;
+                }
+            }
+        }
+    }
+
+    int get_actual_tile_num() {
+        if (!is_num()) {
+            return -1;
+        }
+        int flagged_amnt = 0, nonflagged = 0;
+        get_adjacent_tiles_info(flagged_amnt, nonflagged);
+        return get_num() - flagged_amnt;
+    }
+
 
     std::vector<Tile*> get_different_covered(std::vector<Tile*> vec) {
         std::set<Tile*, TilePtrComparator> set1;
