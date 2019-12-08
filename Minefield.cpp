@@ -114,9 +114,9 @@ private:
     void set_difficulty() {
         char dif;
         std::cout << "Choose your difficulty: " << std::endl;
-        std::cout << "Easy (Height: 9 Width: 9 Mines: 10) [1]" << std::endl;
+        std::cout << "Easy   (Height: 9 Width: 9 Mines: 10)   [1]" << std::endl;
         std::cout << "Normal (Height: 16 Width: 16 Mines: 40) [2]" << std::endl;
-        std::cout << "Hard (Height: 16 Width: 30 Mines: 99) [3]" << std::endl;
+        std::cout << "Hard   (Height: 16 Width: 30 Mines: 99) [3]" << std::endl;
         std::cout << "Custom [anything else]" << std::endl;
         std::cin >> dif;
 
