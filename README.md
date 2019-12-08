@@ -8,4 +8,4 @@ then compile using "make" command then launch "./Minesweeper" and enjoy :)
 
 Controls:  
 Left click to uncover a tile and right click to flag it or mark it as a question mark.  
-The game has no GUI so all info about how many mines are left is printed to console.
+The game has no "HUD" so all info about how many mines are left is printed to console.
