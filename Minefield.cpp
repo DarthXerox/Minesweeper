@@ -1,4 +1,3 @@
-//#include "Minefield.h"
 #include "Tile.h"
 
 #include <vector>
@@ -18,7 +17,7 @@ public:
     };
 
     Minefield() {
-        initialize_minefield();
+        set_difficulty();
         create_minefield();
         set_adjacent_tiles_all_tiles();
     };
@@ -111,6 +110,37 @@ private:
     std::vector<std::vector<Tile>> minefield;
     std::vector<Tile*> bomb_tiles;
 
+    void set_difficulty() {
+        char dif;
+        std::cout << "Choose your difficulty: " << std::endl;
+        std::cout << "Easy (Height: 9 Width: 9 Mines: 10) [1]" << std::endl;
+        std::cout << "Normal (Height: 16 Width: 16 Mines: 40) [2]" << std::endl;
+        std::cout << "Hard (Height: 16 Width: 30 Mines: 99) [3]" << std::endl;
+        std::cout << "Custom [anything else]" << std::endl;
+        std::cin >> dif;
+
+        switch(dif) {
+            case '1':
+                height = 9;
+                width = 9;
+                mines_count = 10;
+                break;
+            case '2':
+                height = 16;
+                width = 16;
+                mines_count = 40;
+                break;
+            case '3':
+                height = 16;
+                width = 30;
+                mines_count = 99;
+                break;
+            default:
+                initialize_minefield();
+        }
+        mines_left = mines_count;
+    }
+
     void initialize_minefield() {
         std::cout << "Choose height of the minefield:" << std::endl;
         std::cin >> height;
@@ -149,7 +179,8 @@ private:
         std::vector<Tile*> mines;
         int i = 0;
 
-        srand(time(nullptr));
+        //srand(time(nullptr));
+        srand(5); // for debugging
         while (i < mines_count) {
             int x = rand() % height;
             int y = rand() % width;
@@ -273,3 +304,5 @@ private:
         return minefield[0][0];
     }
 };
+
+
