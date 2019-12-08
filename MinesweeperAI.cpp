@@ -118,7 +118,7 @@ public:
         return 0;
     }
 
-
+private:
     std::vector<Tile*> get_brother_nums(Tile& init_tile, std::vector<Tile*>& non_flagged_adj) {
         std::vector<std::vector<Tile*>> surrounding_tiles;
         for (Tile* non_flagged : non_flagged_adj) {
@@ -156,7 +156,38 @@ public:
     }
 
 
-    std::vector<std::vector<Tile>> assemble_tile_chunks(Minefield minefield);
+    void set_probability(Minefield& minefield) {
+        std::vector<std::vector<std::vector<Tile*>>> tile_chunks;
+        for (int i = 0; i < minefield.get_height(); i++) {
+            for (int j = 0; j < minefield.get_width(); j++) {
+                Tile& tile = minefield.get_tile(i ,j);
+                if (!tile.visited) {
+                    if (!tile.is_satisfied() && tile.is_num()) {
+                        tile_chunks.push_back(assemble_tile_chunk(minefield, &tile));
+                    }
+                }
+            }
+        }
+        // try every possible combination of bombs to assess the probability
+    }
+
+
+    std::vector<std::vector<Tile*>>& assemble_tile_chunk(Minefield& minefield, Tile* start) {
+        std::vector<std::vector<Tile*>> tile_chunk;
+        std::set<Tile*, Tile::TilePtrComparator> uncovered;
+        std::vector<Tile*> vec = start->get_not_flagged_covered(); // this is already ordered
+
+        start->visited = true;
+        uncovered.insert(vec.begin(), vec.end());
+
+        //for (Tile* tile : start->get_adjacent_tiles()) ;
+
+        return tile_chunk;
+    }
+
+    void rec_through_chunk(std::set<Tile*, Tile::TilePtrComparator>& uncovered) {
+        // BFS
+    }
 
     /**
      * Filters through adjacent tiles of tile and returns only those that are n um and are not equal to other_tile

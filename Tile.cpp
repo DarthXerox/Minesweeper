@@ -70,10 +70,17 @@ public:
         std::vector<Tile*> not_flagged_covered;
         for (auto tile : adjacent_tiles) {
             if (tile->get_is_covered() && !tile->is_flagged()) {
+                //tile->visited = true;
                 not_flagged_covered.push_back(tile);
             }
         }
         return not_flagged_covered;
+    }
+
+    bool is_satisfied() {
+        int flagged_amnt = 0, not_flagged_amnt = 0;
+        get_adjacent_tiles_info(flagged_amnt, not_flagged_amnt);
+        return is_num() && get_num() == flagged_amnt;
     }
 
     bool is_adjacent_to(Tile& tile) {
@@ -200,7 +207,7 @@ public:
         return get_num() <= 8 && get_num() >= 1;
     }
 
-    bool operator <(Tile& tile) {
+    bool operator< (Tile& tile) {
         if (get_row() == tile.get_row()) {
             return get_col() < tile.get_col();
         }
@@ -331,6 +338,8 @@ public:
     bool get_is_covered() {
         return value <= QUESTION_MARK_COVERED && value >= CLEAR_COVERED;
     }
+
+    bool visited = false; // used in "graph-algortihm" parts
 
 private:
     sf::Sprite square;
