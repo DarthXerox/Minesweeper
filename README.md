@@ -1,6 +1,7 @@
 # Minesweeper
-My take on minesweeper in C++, this is just the base game, AI is not finished yet  
-Completely my work, except for the graphics, I'm using the SFML library.  
+My take on minesweeper in C++ using the SFML library.  
+This is just the base game, self-solving program is not finished yet.
+Completely my work, except for the textures.
 
 To play, first install smfl graphics library (unix based OS necessary):  
 https://www.sfml-dev.org/tutorials/2.5/start-linux.php  
