@@ -92,7 +92,7 @@ public:
     }
 
     void load_texture() {
-        texture.loadFromFile("./tiles_img.png");
+        texture.loadFromFile("./res/tiles_img.png");
         square.setTexture(texture);
 
         tile_size.x = texture.getSize().x;
@@ -292,6 +292,13 @@ public:
     bool get_is_covered() {
         return value <= QUESTION_MARK_COVERED && value >= CLEAR_COVERED;
     }
+
+    sf::Rect<float> get_global_bounds() const {
+        return square.getGlobalBounds();
+    }
+
+    const static int height = 16;
+    const static int width = 16;
 
 private:
     sf::Sprite square;

@@ -11,6 +11,18 @@
 
 class Minefield {
 public:
+    enum click_outcome {
+        END_GAME,
+        CONTINUE_GAME,
+        START_AI
+    };
+
+    enum within_minefield {
+        OUT_OF_BOUNDS = 0,
+        TILE,
+        AI_BUTTON
+    };
+
     Minefield(size_t height, size_t width, size_t mines_count): height(height), width(width), mines_count(mines_count),
     mines_left(mines_count){
        create_minefield();
@@ -40,27 +52,39 @@ public:
                 tile.draw_tile(window);
             }
         }
+        window.draw(ai_button);
+        window.draw(text);
+    }
+
+    click_outcome mouse_click_tile(Tile& clicked_tile, sf::Mouse::Button button) {
+        if (first_click) { //this makes sure the first clicked tile isnt a mine
+            bomb_tiles = deploy_bombs(clicked_tile);
+        }
+
+        switch (execute_click(clicked_tile, button)) {
+            case 1:
+                end_the_game(true);
+                return END_GAME;
+            case -1:
+                end_the_game(false);
+                return END_GAME;
+        }
+        first_click = false;
+
+        return CONTINUE_GAME;
     }
 
 
-    int mouse_click(sf::Vector2u mouse_position, sf::Mouse::Button button, sf::RenderWindow& window) {
-        if (is_within_minefield(mouse_position)) {
-            Tile& clicked_tile = find_clicked_tile(mouse_position);
-            if (first_click) { //this makes sure the first clicked tile isnt a mine
-                bomb_tiles = deploy_bombs(clicked_tile);
+    click_outcome mouse_click(sf::Vector2u mouse_position, sf::Mouse::Button button) {
+        if (is_within_minefield(mouse_position) == AI_BUTTON) {
+            if (!first_click) {
+                return START_AI;
             }
-
-            switch (execute_click(clicked_tile, button)) {
-                case 1:
-                    end_the_game(window, true);
-                    return 1;
-                case -1:
-                    end_the_game(window, false);
-                    return 1;
-            }
-            first_click = false;
         }
-        return 0;
+        else if (is_within_minefield(mouse_position) == TILE) {
+            return mouse_click_tile(find_clicked_tile(mouse_position), button);
+        }
+        return CONTINUE_GAME;
     }
 
     void flag_tile(const Tile& tile) {
@@ -71,7 +95,7 @@ public:
         minefield[row][col].flag(mines_left);
     }
 
-    void click_tile(Tile& tile, sf::Mouse::Button button){
+    void click_tile(const Tile& tile, sf::Mouse::Button button){
         click_tile(tile.get_row(), tile.get_col(), button);
     }
 
@@ -79,7 +103,7 @@ public:
         execute_click(minefield[row][col], button);
     }
 
-    void end_the_game(sf::RenderWindow& window, bool game_won) {
+    void end_the_game(bool game_won) {
         std::cout << "\n\n!!!\nGAME OVER\n!!!" << std::endl;
         if (game_won) {
             std::cout << "VICTORY" << std::endl;
@@ -87,9 +111,9 @@ public:
             std::cout << "LOSS" << std::endl;
         std::cout << "Press any mouse key to close the window." << std::endl;
 
-        window.clear(sf::Color(125, 125, 125));
-        draw_minefield(window);
-        window.display();
+        //window.clear(sf::Color(125, 125, 125));
+        //draw_minefield(window);
+        //window.display();
     }
 
 
@@ -97,8 +121,24 @@ public:
         return minefield[x][y];
     }
 
-    size_t get_mines_left() {
+    size_t get_mines_left() const {
         return mines_left;
+    }
+
+    bool check_game_won() {
+        if (check_all_bombs_flagged()) {
+            for (auto& row : minefield) {
+                for (auto tile_ptr : row) {
+                    if (tile_ptr.get_is_covered() && tile_ptr.get_value() != Tile::tile_values::FLAG) {
+                        return false; // all other tiles must be clear
+                    }
+                }
+            }
+
+            return true;
+        }
+
+        return false;
     }
 
 private:
@@ -110,6 +150,10 @@ private:
     bool first_click = true;
     std::vector<std::vector<Tile>> minefield;
     std::vector<Tile*> bomb_tiles;
+    sf::Sprite ai_button;
+    sf::Texture ai_button_texture;
+    sf::Font font;
+    sf::Text text;
 
     void set_difficulty() {
         char dif;
@@ -173,6 +217,27 @@ private:
                 //tile.set_origin_to_middle();
             }
         }
+
+        if (!font.loadFromFile("./res/OpenSans-Regular.ttf"))
+        {
+            std::terminate();
+        }
+        text.setFont(font);
+        text.setString("Start AI");
+        text.setCharacterSize(16);
+        text.setFillColor(sf::Color::Black);
+        text.setStyle(sf::Text::Bold);
+        text.setPosition(width * Tile::width / 2 - 2 * Tile::width, (height + 0.5f) * Tile::height - 2);
+
+        ai_button.setOrigin(0, 0);
+        //ai_button_texture = sf::Texture();
+        ai_button_texture.loadFromFile("./res/tiles_img.png");
+        ai_button.setTexture(ai_button_texture);
+        sf::IntRect new_texture_rect = sf::IntRect(0, 0,
+                                                   Tile::width, Tile::height);
+        ai_button.setTextureRect(new_texture_rect);
+        ai_button.setScale(width, 2);
+        ai_button.move(0, ((float ) height * Tile::height));
     }
 
 
@@ -198,10 +263,9 @@ private:
         if (!tile.get_is_covered())
             return 0;
 
-        if (button == sf::Mouse::Right) {
+        if (button == sf::Mouse::Right ) {
             tile.flag(mines_left);
-            if (check_game_won())
-                return 1;
+
         }
         else { //left button
             if (!tile.is_flagged()) {
@@ -220,10 +284,14 @@ private:
                 }
             }
         }
+        if (check_game_won())
+            return 1;
         return 0;
     }
 
-    bool check_game_won() {
+
+
+    bool check_all_bombs_flagged() {
         if (mines_left == 0) {
             for (auto tile_p: bomb_tiles) {
                 if (!tile_p->is_flagged()) {
@@ -234,6 +302,7 @@ private:
         }
         return false;
     }
+
 
 
     /**
@@ -277,13 +346,20 @@ private:
     }
 
 
-    bool is_within_minefield(sf::Vector2u position) {
+    within_minefield is_within_minefield(sf::Vector2u position) const {
         if (!height || !width) {
-            return false; //invalid minefield size
+            return OUT_OF_BOUNDS; //invalid minefield size
         }
-        sf::Vector2u tile_size = minefield[0][0].get_size();
-        return ((position.x <= starting_point.x + width * tile_size.x) && (position.x >= starting_point.x)) &&
-               ((position.y <= starting_point.y + height * tile_size.y) && (position.y >= starting_point.y));
+        if ((position.x <= starting_point.x + width * Tile::width) && (position.x >= starting_point.x)
+            && (position.y >= starting_point.y)) {
+            if (position.y <= starting_point.y + height * Tile::height) {
+                return TILE;
+            }
+            if (position.y <= starting_point.y + (height + 2) * Tile::height) {
+                return AI_BUTTON;
+            }
+        }
+        return OUT_OF_BOUNDS;
     }
 
 

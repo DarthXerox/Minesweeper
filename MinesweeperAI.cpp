@@ -13,7 +13,7 @@ public:
     MinesweeperAI() = default;
 
     /**
-     * Returns 1 if a successful change of the minefield was made
+     * Returns 1 if a successful change to the minefield was made
      * 0 otherwise
      * */
     //OPTIMIZE with last tile coordinates so it starts to iterate from there
@@ -92,7 +92,7 @@ public:
                                     if (to_click) {
                                         change_made = true;
                                         //std::cout << "Gonna be clicked: " << *adj_tile << std::endl;
-                                        minefield.click_tile(*adj_tile, sf::Mouse::Button::Left);
+                                        minefield.mouse_click_tile(*adj_tile, sf::Mouse::Button::Left);
                                     }
                                 }
 
@@ -227,7 +227,9 @@ private:
         for (Tile* tile : adjacent_tiles) { //this is safe as only already iterated-over tiles are changed
             if (tile->get_is_covered() && !tile->is_flagged()) {
                 //tile->flag(minefield.get_mines_left());
-                minefield.flag_tile(*tile);
+                //minefield.flag_tile(*tile);
+                //minefield.mouse_click(sf::Vector2u(tile->get_global_bounds().left, tile->get_global_bounds().top),sf::Mouse::Button::Right);
+                minefield.mouse_click_tile(*tile, sf::Mouse::Button::Right);
             }
         }
     }
@@ -235,7 +237,9 @@ private:
     void uncover_all_adjacent_covered_tiles(std::vector<Tile*> adjacent_tiles, Minefield& minefield) {
         for (Tile* tile : adjacent_tiles) {
             if (tile->get_is_covered() && !tile->is_flagged()) {
-                minefield.click_tile(*tile, sf::Mouse::Button::Left);
+                //minefield.click_tile(*tile, sf::Mouse::Button::Left);
+                //minefield.mouse_click(sf::Vector2u(tile->get_global_bounds().left, tile->get_global_bounds().top),sf::Mouse::Button::Left);
+                minefield.mouse_click_tile(*tile, sf::Mouse::Button::Left);
             }
         }
     }
