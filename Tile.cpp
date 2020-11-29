@@ -5,7 +5,7 @@
 
 class Tile {
 public:
-    Tile(int row, int col): row(row), col(col) {
+    Tile(size_t row, size_t col): row(row), col(col) {
         load_texture();
     }
 
@@ -114,7 +114,7 @@ public:
         return value == FLAG;
     }
 
-    void flag(int& mines_left) {
+    void flag(size_t& mines_left) {
         if (get_is_covered()) { //this check is probably not necessary
             switch (value) {
                 case CLEAR_COVERED:
@@ -138,8 +138,6 @@ public:
     }
 
     int uncover_tile(unsigned adjacent_bombs_amount) {
-        set_probability(0.0);
-
         if (is_bomb) {
             value = EXPLODED_BOMB;
             display_texture();
@@ -184,17 +182,6 @@ public:
         return value;
     }
 
-    double get_probability() {
-        return probability_is_bomb;
-    }
-
-    void set_probability(double probability) {
-        probability_is_bomb = probability;
-    }
-
-    void set_probability(int all_mines) {
-        probability_is_bomb = 1.0 / all_mines;
-    }
 
     /**
      * if tile is num (enum tiles in <NUM_1, NUM_8>) then return its num(1-8) 
@@ -214,11 +201,11 @@ public:
         return get_row() < tile.get_row();
     }
  
-    int get_col() const {
+    size_t get_col() const {
         return col;
     }
 
-    int get_row() const {
+    size_t get_row() const {
         return row;
     }
 
@@ -237,7 +224,8 @@ public:
     }
 
     /**
-     * Checks all covered adjacent tiles and increments flagged_amnt for each flagged one and not_falgged_covered_amnt for each not flagged one
+     * Checks all covered adjacent tiles and increments flagged_amnt for each flagged one
+     * and not_falgged_covered_amnt for each not flagged one
      **/
     void get_adjacent_tiles_info(int& flagged_amnt, int& not_flagged_covered_amnt) {
         for (Tile* tile : adjacent_tiles) {
@@ -280,49 +268,15 @@ public:
         std::vector<Tile*> adj_tiles;
         std::vector<int> increments = {-1, 0, 1};
 
+        // hard to tell if this for-loop approach is better than manually checking it 8 times
         for (int i : increments) {
             for (int j : increments) {
-                if (row + i >= 0 && col + j >= 0 && row + i < minefield.size() && col + j < minefield[0].size()
-                    && (i != 0 || j != 0)) {
+                if (!(row == 0 && i == -1) && !(col == 0 && j == -1) && row + i < minefield.size()
+                    && col + j < minefield[0].size() && (i != 0 || j != 0)) {
                     adj_tiles.push_back(&minefield[row + i][col + j]);
-
                 }
             }
         }
-        /*
-        if (row + 1 < minefield.size()) { //upper row
-            adj_tiles.push_back(&minefield[row+1][col]);
-
-            if (col - 1 >= 0) {
-                adj_tiles.push_back(&minefield[row+1][col-1]);
-            }
-            if (col + 1 < minefield[0].size()) {
-                adj_tiles.push_back(&minefield[row + 1][col + 1]);
-            }
-        }
-
-        //same row
-        if (col - 1 >= 0)
-            adj_tiles.push_back(&minefield[row][col-1]);
-        if (col + 1 < minefield[0].size())
-            adj_tiles.push_back(&minefield[row][col + 1]);
-
-        if (row - 1 >= 0) { //lower row
-            adj_tiles.push_back(&minefield[row-1][col]);
-
-            if (col - 1 >= 0) {
-                adj_tiles.push_back(&minefield[row-1][col-1]);
-            }
-            if (col + 1 < minefield[0].size()) {
-                adj_tiles.push_back(&minefield[row-1][col+1]);
-            }
-
-        }*/
-
-        //refresh textures!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        //NOT necessary anymore YAY!
-        /*for (auto &_tile: adj_tiles)
-            _tile->load_texture();*/
 
         this->adjacent_tiles = adj_tiles;
     }
@@ -339,18 +293,15 @@ public:
         return value <= QUESTION_MARK_COVERED && value >= CLEAR_COVERED;
     }
 
-    bool visited = false; // used in "graph-algortihm" parts
-
 private:
     sf::Sprite square;
     sf::Vector2u tile_size;
     sf::Texture texture;
-    int row = 0;
-    int col = 0;
+    size_t row = 0;
+    size_t col = 0;
     enum tile_values value = CLEAR_COVERED;
     bool is_bomb = false;
     std::vector<Tile*> adjacent_tiles;
-    double probability_is_bomb = 0.0;
 
     /**
      * Chooses which state of tile is to be drawn
@@ -358,7 +309,8 @@ private:
      */
     void set_texture(int offset) {
         square.setTexture(texture);
-        sf::IntRect new_texture_rect = sf::IntRect(0, (0 + offset) * tile_size.y, tile_size.x, tile_size.y);
+        sf::IntRect new_texture_rect = sf::IntRect(0, (0 + offset) * tile_size.y,
+                                                   tile_size.x, tile_size.y);
         square.setTextureRect(new_texture_rect);
     }
 };

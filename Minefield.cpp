@@ -11,7 +11,7 @@
 
 class Minefield {
 public:
-    Minefield(int height, int width, int mines_count): height(height), width(width), mines_count(mines_count),
+    Minefield(size_t height, size_t width, size_t mines_count): height(height), width(width), mines_count(mines_count),
     mines_left(mines_count){
        create_minefield();
        set_adjacent_tiles_all_tiles();
@@ -23,11 +23,11 @@ public:
         set_adjacent_tiles_all_tiles();
     };
 
-    int get_width() {
+    size_t get_width() const {
         return width;
     }
 
-    int get_height() {
+    size_t get_height() const {
         return height;
     }
 
@@ -67,7 +67,7 @@ public:
         flag_tile(tile.get_row(), tile.get_col());
     }
 
-    void flag_tile(int row, int col) {
+    void flag_tile(size_t row, size_t col) {
         minefield[row][col].flag(mines_left);
     }
 
@@ -75,7 +75,7 @@ public:
         click_tile(tile.get_row(), tile.get_col(), button);
     }
 
-    void click_tile(int row, int col, sf::Mouse::Button button) {
+    void click_tile(size_t row, size_t col, sf::Mouse::Button button) {
         execute_click(minefield[row][col], button);
     }
 
@@ -93,20 +93,20 @@ public:
     }
 
 
-    Tile& get_tile(int x, int y) {
+    Tile& get_tile(size_t x, size_t y) {
         return minefield[x][y];
     }
 
-    int get_mines_left() {
+    size_t get_mines_left() {
         return mines_left;
     }
 
 private:
     const sf::Vector2u starting_point = {0, 0};
-    int width = 0;
-    int height = 0;
-    int mines_count = 0;
-    int mines_left = 0;
+    size_t height = 0;
+    size_t width = 0;
+    size_t mines_count = 0;
+    size_t mines_left = 0;
     bool first_click = true;
     std::vector<std::vector<Tile>> minefield;
     std::vector<Tile*> bomb_tiles;
@@ -153,14 +153,14 @@ private:
     }
 
     void create_minefield() {
-        for (int i = 0; i < height; ++i) {
+        for (size_t i = 0; i < height; ++i) {
             std::vector<Tile> row;
-            for (int j = 0; j < width; ++j) {
+            for (size_t j = 0; j < width; ++j) {
                 Tile tile(i, j);
                 sf::Vector2u pos = sf::Vector2u(starting_point.x + j * tile.get_size().x,
                                 starting_point.y + i * tile.get_size().y);
                 tile.set_position(pos);
-                tile.set_probability(mines_left);
+                //tile.set_probability(mines_left);
 
                 row.push_back(tile);
             }
@@ -178,20 +178,18 @@ private:
 
     std::vector<Tile*> deploy_bombs(Tile& first_clicked_tile) {
         std::vector<Tile*> mines;
-        int i = 0;
+        size_t i = 0;
 
         //srand(time(nullptr));
         srand(5); // for debugging
         while (i < mines_count) {
-            int x = rand() % height;
-            int y = rand() % width;
+            size_t x = rand() % height;
+            size_t y = rand() % width;
             if (first_clicked_tile.get_col() != y && first_clicked_tile.get_row() != x && !minefield[x][y].get_is_bomb()) {
                 minefield[x][y].set_is_bomb();
                 mines.push_back(&minefield[x][y]);
+                ++i;
             }
-            else
-                --i; //we repeat once more
-            ++i;
         }
         return mines;
     }

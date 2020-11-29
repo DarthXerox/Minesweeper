@@ -19,8 +19,8 @@ public:
     //OPTIMIZE with last tile coordinates so it starts to iterate from there
     int check_all_numbers(Minefield& minefield, bool basic_rules_only) {
         //std::cout << "Hm" << std::endl;
-        for (int i = 0; i < minefield.get_height(); i++) {
-            for (int j = 0; j < minefield.get_width(); j++) {
+        for (size_t i = 0; i < minefield.get_height(); i++) {
+            for (size_t j = 0; j < minefield.get_width(); j++) {
                 Tile& tile = minefield.get_tile(i ,j);
                 //std::cout <<"Tile val: "<<tile.get_value()<<std::endl;
                 int tile_num = tile.get_num();
@@ -155,7 +155,7 @@ private:
         return brother_nums;
     }
 
-
+/*
     void set_probability(Minefield& minefield) {
         std::vector<std::vector<std::vector<Tile*>>> tile_chunks;
         for (int i = 0; i < minefield.get_height(); i++) {
@@ -170,8 +170,8 @@ private:
         }
         // try every possible combination of bombs to assess the probability
     }
-
-
+*/
+/*
     std::vector<std::vector<Tile*>>& assemble_tile_chunk(Minefield& minefield, Tile* start) {
         std::vector<std::vector<Tile*>> tile_chunk;
         std::set<Tile*, Tile::TilePtrComparator> uncovered;
@@ -188,6 +188,7 @@ private:
     void rec_through_chunk(std::set<Tile*, Tile::TilePtrComparator>& uncovered) {
         // BFS
     }
+    */
 
     /**
      * Filters through adjacent tiles of tile and returns only those that are n um and are not equal to other_tile
@@ -239,6 +240,7 @@ private:
         }
     }
 
+    /*
     int get_actual_num_tile(Tile& tile, Minefield minefield) {
         if (!tile.is_num()) {
             return 0;
@@ -248,4 +250,5 @@ private:
         get_adjacent_tiles_info(adjacent_tiles, flagged_adjacent_tiles, not_flagged_adjacent_tiles);
         return tile.get_num() - flagged_adjacent_tiles;
     }
+     */
 };
